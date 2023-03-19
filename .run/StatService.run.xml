@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="StatService" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <option name="ACTIVE_PROFILES" />
+    <module name="stat-server" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="ru.practicum.StatService" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="ru.practicum.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
