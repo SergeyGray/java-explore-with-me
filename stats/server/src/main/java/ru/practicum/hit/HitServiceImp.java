@@ -23,19 +23,19 @@ public class HitServiceImp implements HitService {
     @Override
     public List<StatsDto> getStats(String start, String end, List<String> uris, Boolean unique) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime started = LocalDateTime.parse(start,formatter);
-        LocalDateTime ended = LocalDateTime.parse(end,formatter);
+        LocalDateTime started = LocalDateTime.parse(start, formatter);
+        LocalDateTime ended = LocalDateTime.parse(end, formatter);
         List<StatsDto> stats;
         if (uris == null || uris.isEmpty()) {
             if (!unique) {
                 stats = hitRepository.getAllHits(started, ended);
-            }else {
+            } else {
                 stats = hitRepository.getAllHitsWithoutDuplicated(started, ended);
             }
-        } else{
+        } else {
             if (!unique) {
                 stats = hitRepository.getHits(started, ended, uris);
-            }else {
+            } else {
                 stats = hitRepository.getHitsWithoutDuplicated(started, ended, uris);
             }
         }
