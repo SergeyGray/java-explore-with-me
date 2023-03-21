@@ -1,4 +1,4 @@
 FROM amazoncorretto:11-alpine-jdk
-COPY target/*.jar ewm-stats.jar
-ENTRYPOINT ["java","-jar","/ewm-stats.jar"]
+COPY target/*.jar stats-server.jar
+ENTRYPOINT ["java","-jar","/stats-server.jar"]
 EXPOSE 9090

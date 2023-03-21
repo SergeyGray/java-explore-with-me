@@ -23,7 +23,6 @@
 	</properties>
 
 	<modules>
-		<module>main-server</module>
 		<module>stats</module>
 	</modules>
 
