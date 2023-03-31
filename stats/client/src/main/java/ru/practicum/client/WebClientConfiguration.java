@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @ComponentScan
 public class WebClientConfiguration {
     @Bean
-    public WebClient webClient(@Value(value = "http://localhost:9090") String url) {
+    public WebClient webClient(@Value(value = "http://stats-server:9090") String url) {
         return WebClient.builder()
                 .baseUrl(url)
                 .build();
