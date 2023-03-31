@@ -12,6 +12,5 @@ public class StatsDto {
     String app;
     String uri;
     Long hits;
-
 }
 

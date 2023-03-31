@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.*;
+import ru.practicum.dto.HitDto;
+import ru.practicum.dto.StatsDto;
 import ru.practicum.service.StatsService;
-
 
 import javax.validation.Valid;
 import java.util.List;
@@ -30,6 +30,6 @@ public class StatsController {
                                    @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String end,
                                    @RequestParam(defaultValue = "") List<String> uris,
                                    @RequestParam(defaultValue = "false") Boolean unique) {
-        return service.getStats(start,end,uris,unique);
+        return service.getStats(start, end, uris, unique);
     }
 }

@@ -24,7 +24,8 @@
 
 	<modules>
 		<module>stats</module>
-	</modules>
+        <module>main_server</module>
+    </modules>
 
 	<build>
 		<pluginManagement>
