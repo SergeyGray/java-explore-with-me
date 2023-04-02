@@ -39,7 +39,7 @@ public class RequestServiceImp implements RequestService {
         User requester = userService.getById(userId);
         checkException(event, userId);
         LocalDateTime created = LocalDateTime.now();
-        if (event.getRequestModeration().equals(false)) {
+        if (event.getRequestModeration() != null && event.getRequestModeration().equals(false)) {
             return requestRepository.save(new Request(0, created, event, requester,
                     RequestStatusEnum.CONFIRMED));
         } else {
@@ -83,7 +83,8 @@ public class RequestServiceImp implements RequestService {
         if (event.getInitiator().getId() == userId) {
             throw new ConflictException("Нельзя отправллять запрос на участие в своем событии");
         }
-        if (event.getState().equals(EventStateEnum.PENDING) || event.getState().equals(EventStateEnum.CANCELED)) {
+        if ( event.getState() != null &&
+                (event.getState().equals(EventStateEnum.PENDING) || event.getState().equals(EventStateEnum.CANCELED))) {
             throw new ConflictException("Нельзя участвовать в неопубликованном событии");
         }
         if (confirmedRequest == event.getParticipantLimit()) {

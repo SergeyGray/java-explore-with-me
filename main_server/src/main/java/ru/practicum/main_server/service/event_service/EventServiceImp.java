@@ -23,6 +23,8 @@ import ru.practicum.main_server.service.request_service.RequestService;
 import ru.practicum.main_server.service.statictic_service.StatisticService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ValidationException;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -35,6 +37,7 @@ import java.util.stream.Collectors;
 public class EventServiceImp implements EventService {
 
     static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    static final int MIN_TIME = 2;
     private final EventRepository eventRepository;
     private final CategoryService categoryService;
     private final RequestRepository requestRepository;
@@ -45,7 +48,7 @@ public class EventServiceImp implements EventService {
     @Transactional
     public EventFullDto create(Event event) {
         Category category = CategoryMapper.dtoToCategory(categoryService.getById(event.getCategory().getId()));
-        LocalDateTime minTime = LocalDateTime.now().minusHours(2);
+        LocalDateTime minTime = LocalDateTime.now().minusHours(MIN_TIME);
         if (event.getEventDate().isAfter(minTime)) {
             event.getCategory().setName(category.getName());
             eventRepository.save(event);
@@ -130,20 +133,24 @@ public class EventServiceImp implements EventService {
             List<Request> requests = requestRepository.getRequestByIdEventId(
                     updateRequest.getRequestIds(), RequestStatusEnum.PENDING);
             for (Request r : requests) {
-                if (updateRequest.getStatus().equals(RequestStatusEnum.CONFIRMED)) {
-                    if (confirmedRequest < event.getParticipantLimit() && count < event.getParticipantLimit()) {
-                        r.setStatus(RequestStatusEnum.CONFIRMED);
-                        confirmedList.add(r);
-                        count++;
+                if(updateRequest.getStatus() != null) {
+                    if (updateRequest.getStatus().equals(RequestStatusEnum.CONFIRMED)) {
+                        if (confirmedRequest < event.getParticipantLimit() && count < event.getParticipantLimit()) {
+                            r.setStatus(RequestStatusEnum.CONFIRMED);
+                            confirmedList.add(r);
+                            count++;
+                        } else {
+                            throw new ConflictException("Достигнут лимит заявок");
+                        }
                     } else {
-                        throw new ConflictException("Достигнут лимит заявок");
+                        if (r.getStatus().equals(RequestStatusEnum.CONFIRMED)) {
+                            throw new ConflictException("Заявка уже принята");
+                        }
+                        r.setStatus(RequestStatusEnum.REJECTED);
+                        rejectedList.add(r);
                     }
-                } else {
-                    if (r.getStatus().equals(RequestStatusEnum.CONFIRMED)) {
-                        throw new ConflictException("Заявка уже принята");
-                    }
-                    r.setStatus(RequestStatusEnum.REJECTED);
-                    rejectedList.add(r);
+                }else {
+                    throw new ValidationException("Request.status cannot be null");
                 }
             }
         }
@@ -233,6 +240,8 @@ public class EventServiceImp implements EventService {
                             "только если оно еще не опубликовано");
                 }
             }
+        }else {
+            throw new ValidationException("StateAction cannot be null");
         }
         Event event = eventRepository.save(newEventAdmin);
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
@@ -364,10 +373,10 @@ public class EventServiceImp implements EventService {
         List<StatsDto> viewStatsList = statisticService.getViews(LocalDateTime.parse(start, FORMATTER),
                 end, uris, true);
         Map<Integer, Long> mapEventsIdAndCountViews = new HashMap<>();
-        for (Integer i : listUrisAndEventId.keySet()) {
-            for (StatsDto vv : viewStatsList) {
-                if (vv.getUri().equals(listUrisAndEventId.get(i))) {
-                    mapEventsIdAndCountViews.put(i, vv.getHits());
+        for (Integer eventId : listUrisAndEventId.keySet()) {
+            for (StatsDto viewStat : viewStatsList) {
+                if (viewStat.getUri()!= null && viewStat.getUri().equals(listUrisAndEventId.get(eventId))) {
+                    mapEventsIdAndCountViews.put(eventId, viewStat.getHits());
                 }
             }
         }
@@ -385,7 +394,7 @@ public class EventServiceImp implements EventService {
     }
 
     private List<EventShortDto> getEventListSorted(List<EventShortDto> eventsDate, List<Event> events,
-                                                   Boolean onlyAvailable, EventSortEnum sortEnum) {
+                                                   @NotNull Boolean onlyAvailable, @NotNull EventSortEnum sortEnum) {
         if (onlyAvailable.equals(true)) {
             if (sortEnum.equals(EventSortEnum.EVENT_DATE)) {
                 return eventsDate.stream()
@@ -455,7 +464,7 @@ public class EventServiceImp implements EventService {
         if (initiatorId != userId) {
             throw new NotFoundException("Событие недоступно");
         }
-        if (eventStateEnum.equals(EventStateEnum.PUBLISHED)) {
+        if (eventStateEnum != null && eventStateEnum.equals(EventStateEnum.PUBLISHED)) {
             throw new ConflictException("Событие уже опубликовано");
         }
     }
