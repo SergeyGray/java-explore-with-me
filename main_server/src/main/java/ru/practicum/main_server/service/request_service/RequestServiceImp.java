@@ -83,7 +83,7 @@ public class RequestServiceImp implements RequestService {
         if (event.getInitiator().getId() == userId) {
             throw new ConflictException("Нельзя отправллять запрос на участие в своем событии");
         }
-        if ( event.getState() != null &&
+        if (event.getState() != null &&
                 (event.getState().equals(EventStateEnum.PENDING) || event.getState().equals(EventStateEnum.CANCELED))) {
             throw new ConflictException("Нельзя участвовать в неопубликованном событии");
         }

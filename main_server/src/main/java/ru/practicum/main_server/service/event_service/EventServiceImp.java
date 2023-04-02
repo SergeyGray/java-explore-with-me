@@ -133,7 +133,7 @@ public class EventServiceImp implements EventService {
             List<Request> requests = requestRepository.getRequestByIdEventId(
                     updateRequest.getRequestIds(), RequestStatusEnum.PENDING);
             for (Request r : requests) {
-                if(updateRequest.getStatus() != null) {
+                if (updateRequest.getStatus() != null) {
                     if (updateRequest.getStatus().equals(RequestStatusEnum.CONFIRMED)) {
                         if (confirmedRequest < event.getParticipantLimit() && count < event.getParticipantLimit()) {
                             r.setStatus(RequestStatusEnum.CONFIRMED);
@@ -149,7 +149,7 @@ public class EventServiceImp implements EventService {
                         r.setStatus(RequestStatusEnum.REJECTED);
                         rejectedList.add(r);
                     }
-                }else {
+                } else {
                     throw new ValidationException("Request.status cannot be null");
                 }
             }
@@ -240,7 +240,7 @@ public class EventServiceImp implements EventService {
                             "только если оно еще не опубликовано");
                 }
             }
-        }else {
+        } else {
             throw new ValidationException("StateAction cannot be null");
         }
         Event event = eventRepository.save(newEventAdmin);
@@ -375,7 +375,7 @@ public class EventServiceImp implements EventService {
         Map<Integer, Long> mapEventsIdAndCountViews = new HashMap<>();
         for (Integer eventId : listUrisAndEventId.keySet()) {
             for (StatsDto viewStat : viewStatsList) {
-                if (viewStat.getUri()!= null && viewStat.getUri().equals(listUrisAndEventId.get(eventId))) {
+                if (viewStat.getUri() != null && viewStat.getUri().equals(listUrisAndEventId.get(eventId))) {
                     mapEventsIdAndCountViews.put(eventId, viewStat.getHits());
                 }
             }
