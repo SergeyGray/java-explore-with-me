@@ -6,7 +6,4 @@ public class NotFoundException extends RuntimeException {
         super(message);
     }
 
-    public String getMassage() {
-        return super.getMessage();
-    }
 }

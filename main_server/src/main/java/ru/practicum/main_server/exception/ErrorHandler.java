@@ -47,16 +47,6 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(final NotFoundException e) {
-        return new ErrorResponse(
-                HttpStatus.NOT_FOUND,
-                "Не найдено",
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -64,6 +54,17 @@ public class ErrorHandler {
         return new ErrorResponse(
                 HttpStatus.CONFLICT,
                 "Некорректный запрос",
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFoundException(final NotFoundException e) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND,
+                "Не найдено",
                 e.getMessage(),
                 LocalDateTime.now()
         );
