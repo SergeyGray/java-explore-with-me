@@ -23,7 +23,6 @@ import ru.practicum.main_server.service.request_service.RequestService;
 import ru.practicum.main_server.service.statictic_service.StatisticService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -93,13 +92,13 @@ public class EventServiceImp implements EventService {
         if (userRequest.getCategory() != null) {
             category = CategoryMapper.dtoToCategory(categoryService.getById(userRequest.getCategory()));
         }
-            if (EventStateActionEnum.SEND_TO_REVIEW.equals(userRequest.getStateAction())) {
-                newEvent.setState(EventStateEnum.PENDING);
-                newEvent.getCategory().setName(category.getName());
-            }
-            if (EventStateActionEnum.CANCEL_REVIEW.equals(userRequest.getStateAction())) {
-                newEvent.setState(EventStateEnum.CANCELED);
-            }
+        if (EventStateActionEnum.SEND_TO_REVIEW.equals(userRequest.getStateAction())) {
+            newEvent.setState(EventStateEnum.PENDING);
+            newEvent.getCategory().setName(category.getName());
+        }
+        if (EventStateActionEnum.CANCEL_REVIEW.equals(userRequest.getStateAction())) {
+            newEvent.setState(EventStateEnum.CANCELED);
+        }
         Event update = eventRepository.save(newEvent);
         int confirmedRequest = requestService.getConfirmedRequest(newEvent.getId());
         EventFullDto eventFullDto = EventMapper.toEventFullDto(update);
@@ -131,21 +130,21 @@ public class EventServiceImp implements EventService {
             List<Request> requests = requestRepository.getRequestByIdEventId(
                     updateRequest.getRequestIds(), RequestStatusEnum.PENDING);
             for (Request request : requests) {
-                    if (RequestStatusEnum.CONFIRMED.equals(updateRequest.getStatus())) {
-                        if (confirmedRequest < event.getParticipantLimit() && count < event.getParticipantLimit()) {
-                            request.setStatus(RequestStatusEnum.CONFIRMED);
-                            confirmedList.add(request);
-                            count++;
-                        } else {
-                            throw new ConflictException("Достигнут лимит заявок");
-                        }
+                if (RequestStatusEnum.CONFIRMED.equals(updateRequest.getStatus())) {
+                    if (confirmedRequest < event.getParticipantLimit() && count < event.getParticipantLimit()) {
+                        request.setStatus(RequestStatusEnum.CONFIRMED);
+                        confirmedList.add(request);
+                        count++;
                     } else {
-                        if (RequestStatusEnum.CONFIRMED.equals(request.getStatus())) {
-                            throw new ConflictException("Заявка уже принята");
-                        }
-                        request.setStatus(RequestStatusEnum.REJECTED);
-                        rejectedList.add(request);
+                        throw new ConflictException("Достигнут лимит заявок");
                     }
+                } else {
+                    if (RequestStatusEnum.CONFIRMED.equals(request.getStatus())) {
+                        throw new ConflictException("Заявка уже принята");
+                    }
+                    request.setStatus(RequestStatusEnum.REJECTED);
+                    rejectedList.add(request);
+                }
             }
         }
         List<ParticipationRequestDto> confirmedRequests = RequestMapper
@@ -215,24 +214,24 @@ public class EventServiceImp implements EventService {
             category = CategoryMapper.dtoToCategory(categoryService.getById(adminRequest.getCategory()));
         }
         updateTheEventDate(adminRequest, newEventAdmin, minTime);
-            if (EventStateActionAdminEnum.PUBLISH_EVENT.equals(adminRequest.getStateAction())) {
-                if (newEventAdmin.getState().equals(EventStateEnum.PENDING)) {
-                    newEventAdmin.setState(EventStateEnum.PUBLISHED);
-                    newEventAdmin.setPublishedOn(publishedDate);
-                    newEventAdmin.getCategory().setName(category.getName());
-                } else {
-                    throw new ConflictException("событие можно публиковать, " +
-                            "только если оно в состоянии ожидания публикации");
-                }
+        if (EventStateActionAdminEnum.PUBLISH_EVENT.equals(adminRequest.getStateAction())) {
+            if (newEventAdmin.getState().equals(EventStateEnum.PENDING)) {
+                newEventAdmin.setState(EventStateEnum.PUBLISHED);
+                newEventAdmin.setPublishedOn(publishedDate);
+                newEventAdmin.getCategory().setName(category.getName());
+            } else {
+                throw new ConflictException("событие можно публиковать, " +
+                        "только если оно в состоянии ожидания публикации");
             }
-            if (EventStateActionAdminEnum.REJECT_EVENT.equals(adminRequest.getStateAction())) {
-                if (newEventAdmin.getState().equals(EventStateEnum.PENDING)) {
-                    newEventAdmin.setState(EventStateEnum.CANCELED);
-                } else {
-                    throw new ConflictException("Событие можно отклонить, " +
-                            "только если оно еще не опубликовано");
-                }
+        }
+        if (EventStateActionAdminEnum.REJECT_EVENT.equals(adminRequest.getStateAction())) {
+            if (newEventAdmin.getState().equals(EventStateEnum.PENDING)) {
+                newEventAdmin.setState(EventStateEnum.CANCELED);
+            } else {
+                throw new ConflictException("Событие можно отклонить, " +
+                        "только если оно еще не опубликовано");
             }
+        }
         Event event = eventRepository.save(newEventAdmin);
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         int confirmedRequest = requestService.getConfirmedRequest(event.getId());
