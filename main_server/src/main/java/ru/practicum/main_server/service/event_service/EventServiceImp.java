@@ -12,10 +12,12 @@ import ru.practicum.main_server.dto.*;
 import ru.practicum.main_server.exception.ConflictException;
 import ru.practicum.main_server.exception.NotFoundException;
 import ru.practicum.main_server.mapper.CategoryMapper;
+import ru.practicum.main_server.mapper.CommentMapper;
 import ru.practicum.main_server.mapper.EventMapper;
 import ru.practicum.main_server.mapper.RequestMapper;
 import ru.practicum.main_server.model.*;
 import ru.practicum.main_server.model.enums.*;
+import ru.practicum.main_server.repository.CommentRepository;
 import ru.practicum.main_server.repository.EventRepository;
 import ru.practicum.main_server.repository.RequestRepository;
 import ru.practicum.main_server.service.category_service.CategoryService;
@@ -42,6 +44,7 @@ public class EventServiceImp implements EventService {
     private final RequestRepository requestRepository;
     private final StatisticService statisticService;
     private final RequestService requestService;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional
@@ -78,7 +81,7 @@ public class EventServiceImp implements EventService {
         Event event = eventRepository.getEventByIdUserWitchId(userId, eventId);
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         eventFullDto.setConfirmedRequests(confirmedRequest);
-        return eventFullDto;
+        return result(eventId, eventFullDto);
     }
 
     @Override
@@ -290,7 +293,7 @@ public class EventServiceImp implements EventService {
         } else {
             eventFullDto.setViews(0);
         }
-        return eventFullDto;
+        return result(event.getId(), eventFullDto);
     }
 
     @Override
@@ -456,6 +459,17 @@ public class EventServiceImp implements EventService {
         if (EventStateEnum.PUBLISHED.equals(eventStateEnum)) {
             throw new ConflictException("Событие уже опубликовано");
         }
+    }
+
+    private EventFullDto result(int eventId, EventFullDto eventFullDto) {
+        List<Comment> comments = commentRepository.getCommentByEventId(eventId);
+        if (!comments.isEmpty()) {
+            List<CommentShortDto> commentShortDtos = CommentMapper.toListCommentShortDto(comments);
+            eventFullDto.setCommentShortDto(commentShortDtos);
+        } else {
+            eventFullDto.setCommentShortDto(Collections.emptyList());
+        }
+        return eventFullDto;
     }
 
 }

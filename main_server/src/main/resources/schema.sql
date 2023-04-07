@@ -1,4 +1,5 @@
-DROP TABLE IF EXISTS requests, compilation_events, compilations, events, locations, categories, users;
+DROP TABLE IF EXISTS comments_admin, comments, requests, compilation_events, compilations, events,
+    locations, categories, users;
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -68,5 +69,31 @@ CREATE TABLE IF NOT EXISTS compilation_events
     compilation_id BIGINT REFERENCES compilations (id),
     event_id       BIGINT REFERENCES events (id),
     CONSTRAINT ce_pk PRIMARY KEY (compilation_id, event_id)
+);
+
+CREATE TABLE IF NOT EXISTS comments
+(
+    id              INT GENERATED ALWAYS AS IDENTITY,
+    comment         VARCHAR(7000) NOT NULL,
+    commentator     INT           NOT NULL,
+    commented_event INT           NOT NULL,
+    create_on       TIMESTAMP     NOT NULL,
+    published_on    TIMESTAMP,
+    edit_on         TIMESTAMP,
+    status          VARCHAR       NOT NULL,
+    comment_admin   VARCHAR(200),
+    CONSTRAINT pk_comments PRIMARY KEY (id),
+    CONSTRAINT fk_commentator FOREIGN KEY (commentator) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_commented_event FOREIGN KEY (commented_event) REFERENCES events (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS comments_admin
+(
+    id            INT GENERATED ALWAYS AS IDENTITY,
+    comment_id    INT,
+    comment_admin VARCHAR(500),
+    created_on    TIMESTAMP,
+    CONSTRAINT pk_comments_admin PRIMARY KEY (id),
+    CONSTRAINT fk_comment_id FOREIGN KEY (comment_id) REFERENCES comments (id) ON DELETE CASCADE
 );
 
