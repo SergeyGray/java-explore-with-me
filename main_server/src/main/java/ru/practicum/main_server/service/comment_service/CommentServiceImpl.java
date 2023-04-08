@@ -85,11 +85,11 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public Comment updateCommentStatus(UpdateStatusAdminComments updateStatusAdminComments, int commentId) {
         Comment comment = getById(commentId);
-        if (updateStatusAdminComments.getStateAdmin().equals(CommentStateAdmin.PUBLISH_COMMENT)) {
+        if (CommentStateAdmin.PUBLISH_COMMENT.equals(updateStatusAdminComments.getStateAdmin())) {
             comment.setPublishedOn(LocalDateTime.now());
             comment.setStatus(StatusComment.PUBLISHED);
         }
-        if (updateStatusAdminComments.getStateAdmin().equals(CommentStateAdmin.REJECT_COMMENT)) {
+        if (CommentStateAdmin.REJECT_COMMENT.equals(updateStatusAdminComments.getStateAdmin())) {
             comment.setStatus(StatusComment.REJECTED);
             CommentsAdmin commentsAdmin = new CommentsAdmin();
             commentsAdmin.setCommentId(comment);
@@ -104,7 +104,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentStatusDto getCommentStatus(int userId, int commentId) {
         Comment comment = commentRepository.getCommentById(commentId, userId);
         CommentsAdmin commentsAdmin;
-        if (comment.getStatus().equals(StatusComment.REJECTED)) {
+        if (StatusComment.REJECTED.equals(comment.getStatus())) {
             commentsAdmin = commentsAdminRepository.getCommentAdmin(commentId);
             return CommentMapper.toCommentStatusDto(comment, commentsAdmin);
         } else {

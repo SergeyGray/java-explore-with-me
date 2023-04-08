@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS comments
     create_on       TIMESTAMP     NOT NULL,
     published_on    TIMESTAMP,
     edit_on         TIMESTAMP,
-    status          VARCHAR       NOT NULL,
+    status          VARCHAR(20)       NOT NULL,
     comment_admin   VARCHAR(200),
     CONSTRAINT pk_comments PRIMARY KEY (id),
     CONSTRAINT fk_commentator FOREIGN KEY (commentator) REFERENCES users (id) ON DELETE CASCADE,

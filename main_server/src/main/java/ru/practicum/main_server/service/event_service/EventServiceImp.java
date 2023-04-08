@@ -387,7 +387,7 @@ public class EventServiceImp implements EventService {
 
     private List<EventShortDto> getEventListSorted(List<EventShortDto> eventsDate, List<Event> events,
                                                    @NotNull Boolean onlyAvailable, @NotNull EventSortEnum sortEnum) {
-        if (onlyAvailable.equals(true)) {
+        if (onlyAvailable) {
             if (sortEnum.equals(EventSortEnum.EVENT_DATE)) {
                 return eventsDate.stream()
                         .filter(eventShortDto -> eventShortDto.getConfirmedRequests() <
